@@ -130,15 +130,7 @@
         		</execution>  
     		</executions>  
       		<configuration>
-      			<!-- 
-        		<archive>
-          			<manifest>
-            			<mainClass>com.allen.capturewebdata.Main</mainClass>
-          			</manifest>
-        		</archive>
-        		 -->
-        		 
-        		 <dependencySets>  
+        		<dependencySets>  
     				<dependencySet>  
        				<outputDirectory>/</outputDirectory>  
     				</dependencySet>  
@@ -148,7 +140,6 @@
         		</descriptorRefs>
       		</configuration>
     	</plugin>
-    	
     </plugins>
   </build>
 </project>
