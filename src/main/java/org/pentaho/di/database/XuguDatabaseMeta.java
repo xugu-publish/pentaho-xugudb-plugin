@@ -19,7 +19,8 @@ type = "Xugu",
 typeDescription = "Xugu"
 )
 
-public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface{		
+public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface{	
+	//private static final int VARCHAR_LIMIT = 65_535;
 	// 返回连接类型 目前暂时支持JDBC
 	@Override
 	public int[] getAccessTypeList(){
@@ -371,4 +372,10 @@ public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterf
 	public boolean supportsRepository(){
 		return true;
 	}
+	
+	//
+//  @Override
+//  	public int getMaxVARCHARLength() {
+//	  return VARCHAR_LIMIT;
+//  	}
 }
