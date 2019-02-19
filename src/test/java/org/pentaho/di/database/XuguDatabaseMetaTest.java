@@ -15,9 +15,10 @@ public class XuguDatabaseMetaTest {
 	//²âÊÔ×é×°Url
 	@Test
 	public void testGetUrl() throws KettleException{
-		final String prefix = "jdbc:xugu://192.168.2.77:5138/testdb";
+		final String prefix = "jdbc:xugu://192.168.2.77:5138/testdb?char_set=GBK&auto_commit=false";
 		XuguDatabaseMeta dbMeta = new XuguDatabaseMeta();
 		// Test building url
+		System.out.println("realURL get "+dbMeta.getURL("192.168.2.77", "5138", "testdb"));
 		assertEquals( prefix, dbMeta.getURL( "192.168.2.77", "5138", "testdb"));
 	}
 }

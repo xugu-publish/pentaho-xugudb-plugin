@@ -7,6 +7,12 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.plugins.DatabaseMetaPlugin;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.Vector;
+
 //该注解指明该类为数据库插件类
 @DatabaseMetaPlugin(
 type = "Xugu",
@@ -59,10 +65,66 @@ public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterf
 	public String getDriverClass(){
 		return "com.xugu.cloudjdbc.Driver";
 	}
-
+	
 	// 返回数据库连接url
 	public String getURL(String hostName, String port, String databaseName){
-		return "jdbc:xugu://" + hostName + ":" + port + "/" +databaseName;
+		Properties properties = new Properties();
+		// 使用InPutStream流读取properties文件
+		BufferedReader bufferedReader;
+		try {
+			bufferedReader = new BufferedReader(new FileReader("connectProperty.properties"));
+			properties.load(bufferedReader);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// 获取key对应的value值
+		String char_set = properties.getProperty("char_set");
+		String lock_time = properties.getProperty("lock_time");
+		String lob_ret = properties.getProperty("lob_ret");
+		String return_rowid = properties.getProperty("return_rowid");
+		String auto_commit = properties.getProperty("auto_commit");
+		String conn_type = properties.getProperty("conn_type");
+		String ips = properties.getProperty("ips");
+		String sql_cursor = properties.getProperty("sql_cursor");
+		// 构建连接字符串
+		String con_str = "jdbc:xugu://" + hostName + ":" + port + "/" +databaseName;
+		Vector<String> pro_str = new Vector<String>();
+		if(char_set!=null && char_set.length()>0) {
+			pro_str.add("char_set="+char_set);
+		}
+		if(lock_time!=null && lock_time.length()>0) {
+			pro_str.add("lock_time="+lock_time);
+		}
+		if(lob_ret!=null && lob_ret.length()>0) {
+			pro_str.add("lob_ret="+lob_ret);		
+		}
+		if(return_rowid!=null && return_rowid.length()>0) {
+			pro_str.add("return_rowid="+return_rowid);
+		}
+		if(auto_commit!=null && auto_commit.length()>0) {
+			pro_str.add("auto_commit="+auto_commit);
+		}
+		if(conn_type!=null && conn_type.length()>0) {
+			pro_str.add("conn_type="+conn_type);
+		}
+		if(ips!=null && ips.length()>0) {
+			pro_str.add("ips="+ips);
+		}
+		if(sql_cursor!=null && sql_cursor.length()>0) {
+			pro_str.add("sql_cursor="+sql_cursor);
+		}
+		if(pro_str.size()!=0) {
+			con_str+="?";
+		}
+		for(int i=0; i<pro_str.size(); i++) {
+			if(i!=0) {
+				con_str += "&";
+			}
+			con_str += pro_str.get(i);
+		}
+		return con_str;
 	}
 
 	//是否支持同义词
@@ -74,88 +136,89 @@ public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterf
 	// 返回字段定义 用于组装sql语句
 	public String getFieldDefinition(ValueMetaInterface v, String tk, String pk, boolean use_autoinc, boolean add_fieldName, boolean add_cr){
 		String retval = "";
+		//获取字段信息
+		String fieldName = v.getName();
+		//clob类型长度处理 长度一致则不需要处理
+		//			if(v.getLength() == DatabaseMeta.CLOB_LENGTH) {
+		//				v.setLength(getMaxTextFieldLength());
+		//			}
+		//字段长度
+		int length = v.getLength();
+		//字段精度
+		int precision = v.getPrecision();
+		//字段类型
+		int type = v.getType();
+		
+		// 新增一列
+		if(add_fieldName) {
+			retval += fieldName + " ";
+		}
 	
-	//获取字段信息
-	String fieldName = v.getName();
-	//clob类型长度处理 长度一致则不需要处理
-	//			if(v.getLength() == DatabaseMeta.CLOB_LENGTH) {
-	//				v.setLength(getMaxTextFieldLength());
-	//			}
-	//字段长度
-	int length = v.getLength();
-	//字段精度
-	int precision = v.getPrecision();
-	//字段类型
-	int type = v.getType();
-	
-	// 新增一列
-	if(add_fieldName) {
-		retval += fieldName + " ";
-	}
-	
-	switch(type) {
-		case ValueMetaInterface.TYPE_DATE:
-			retval += "DATE";
-			break;
-		case ValueMetaInterface.TYPE_TIMESTAMP:
-			retval += "DATETIME";
-			break;
-		case ValueMetaInterface.TYPE_BOOLEAN:
-			retval += "BOOLEAN";
-			break;
-		case ValueMetaInterface.TYPE_NUMBER:
-		case ValueMetaInterface.TYPE_INTEGER:
-		case ValueMetaInterface.TYPE_BIGNUMBER:
-			// 如果修改的是键 则将其类型直接设为BigInt
-			if(fieldName.equalsIgnoreCase(tk)||
-					fieldName.equalsIgnoreCase(pk)) {
-				// 设为自增
-				if(use_autoinc) {
-					retval += "BIGINT identity(0,1) NOT NULL PRIMARY KEY";
+		switch(type) {
+			case ValueMetaInterface.TYPE_DATE:
+				retval += "DATE";
+				break;
+			case ValueMetaInterface.TYPE_TIMESTAMP:
+				retval += "DATETIME";
+				break;
+			case ValueMetaInterface.TYPE_BOOLEAN:
+				retval += "BOOLEAN";
+				break;
+			case ValueMetaInterface.TYPE_NUMBER:
+			case ValueMetaInterface.TYPE_INTEGER:
+			case ValueMetaInterface.TYPE_BIGNUMBER:
+				// 如果修改的是键 则将其类型直接设为BigInt
+				if(fieldName.equalsIgnoreCase(tk)||
+						fieldName.equalsIgnoreCase(pk)) {
+					// 设为自增
+					if(use_autoinc) {
+						retval += "BIGINT identity(0,1) NOT NULL PRIMARY KEY";
+					}else {
+						retval += "BIGINT NOT NULL PRIMARY KEY";
+					}
 				}else {
-					retval += "BIGINT NOT NULL PRIMARY KEY";
-				}
-			}else {
-				// 整型数据
-				if(precision==0) {
-					if(length>9) {
-						// 10-18位整数 设为BigInt
-						if(length<19) {
-							retval += "BIGINT";
+					// 整型数据
+					if(precision==0) {
+						if(length>9) {
+							// 10-18位整数 设为BIGINT
+							if(length<19) {
+								retval += "BIGINT";
+							}
+							// 19位及以上设为NUMERIC
+							else {
+								retval += "NUMERIC(" + length + ")";
+							}
+						}else {
+							retval += "INTEGER";
 						}
-						// 19位及以上设为DECIMAL
-						else {
-							retval += "NUMERIC(" + length + ")";
+					}
+					// 浮点型数据
+					else {
+						if(length>15) {
+							retval += "NUMERIC(" + length;
+							if(precision>0) {
+								retval += ", " + precision;
+							}
+							retval += ")";
+						}else {
+							retval += "DOUBLE";
 						}
-					}else {
-						retval += "INTEGER";
 					}
 				}
-				// 浮点型数据
-				else {
-					if(length>15) {
-						retval += "NUMERIC(" + length;
-						if(precision>0) {
-							retval += ", " + precision;
-						}
-						retval += ")";
-					}else {
-						retval += "DOUBLE";
-					}
+				break;
+			case ValueMetaInterface.TYPE_STRING:
+				if(length == 1) {
+					retval += "CHAR(1)";
+				}else if(length < 65536) {
+					retval += "VARCHAR(" + length + ")";
+				}else {
+					retval += "CLOB";
 				}
-			}
-			break;
-		case ValueMetaInterface.TYPE_STRING:
-			if(length == 1) {
-				retval += "CHAR(1)";
-			}else if(length < 65536) {
-				retval += "VARCHAR(" + length + ")";
-			}else {
-				retval += "CLOB";
-			}
-			break;
-		case ValueMetaInterface.TYPE_BINARY:
-			retval += "BINARY";
+				break;
+			case ValueMetaInterface.TYPE_BINARY:
+				retval += "BINARY";
+					break;
+			default:
 				break;
 		}
 		
