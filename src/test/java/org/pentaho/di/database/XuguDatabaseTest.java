@@ -60,7 +60,7 @@ public class XuguDatabaseTest {
 		assertEquals("TOM", row[1]);
 		System.out.println("row1 "+row[0]+" "+row[1]);
 		
-		//检测大小写
+		//检测数据及其大小写是否正确
 		row = db.getRow(result);
 		assertNotNull(row);
 		assertEquals(1L, row[0]);
@@ -83,11 +83,48 @@ public class XuguDatabaseTest {
 		//创建测试表
 		//db.execStatement("Create table kettle_testTable(id ");
 		
-		//检测字段大小写及类型映射
-		String[] namesAndTypes = meta.getFieldNamesAndTypes(20);
+		//获取测试字段数据类型映射
+		//数字类型
+		ResultSet result1 = db.openQuery("SELECT * FROM type_test1");
+		Object[] row1 = db.getRow(result1);
+		RowMetaInterface meta1 = db.getMetaFromRow(row1, result1.getMetaData());
+		//字符及特殊类型
+		ResultSet result2 = db.openQuery("SELECT * FROM type_test2");
+		Object[] row2 = db.getRow(result2);
+		RowMetaInterface meta2 = db.getMetaFromRow(row2, result2.getMetaData());
+		//时间类型
+		ResultSet result3 = db.openQuery("SELECT * FROM type_test3");
+		Object[] row3 = db.getRow(result3);
+		RowMetaInterface meta3 = db.getMetaFromRow(row3, result3.getMetaData());
+		
+		//检测字段类型映射
+		String[] namesAndTypes = meta1.getFieldNamesAndTypes(20);
+		System.out.println("Table1");
 		for(int i=0; i<namesAndTypes.length; i++) {
 			System.out.println("col"+i+" "+namesAndTypes[i]);
 		}
+		namesAndTypes = meta2.getFieldNamesAndTypes(20);
+		System.out.println("Table2");
+		for(int i=0; i<namesAndTypes.length; i++) {
+			System.out.println("col"+i+" "+namesAndTypes[i]);
+		}
+		namesAndTypes = meta3.getFieldNamesAndTypes(20);
+		System.out.println("Table3");
+		for(int i=0; i<namesAndTypes.length; i++) {
+			System.out.println("col"+i+" "+namesAndTypes[i]);
+		}
+		
+		//测试字段大小写
+		ResultSet result4 = db.openQuery("SELECT * FROM field_test");
+		Object[] row4 = db.getRow(result4);
+		RowMetaInterface meta4 = db.getMetaFromRow(row4, result4.getMetaData());
+		
+		namesAndTypes = meta4.getFieldNamesAndTypes(20);
+		System.out.println("Table4");
+		for(int i=0; i<namesAndTypes.length; i++) {
+			System.out.println("col"+i+" "+namesAndTypes[i]);
+		}
+		
 		db.disconnect();
 	}
 }
