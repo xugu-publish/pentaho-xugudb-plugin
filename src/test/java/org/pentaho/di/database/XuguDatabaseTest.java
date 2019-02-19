@@ -40,6 +40,7 @@ public class XuguDatabaseTest {
 		dbMeta.setPassword("SYSDBA");
 		dbMeta.setDBPort("5138");
 		dbMeta.setDBName("testDB");
+		System.out.println("TTTTTTTTTest connect "+dbMeta.getAttributes()+" "+dbMeta.getURL());
 	
 		//连接数据库
 		Database db = new Database(new LoggingObject(this), dbMeta);
@@ -57,23 +58,36 @@ public class XuguDatabaseTest {
 		assertEquals(2, meta.size());
 		assertEquals(0L, row[0]);
 		assertEquals("TOM", row[1]);
+		System.out.println("row1 "+row[0]+" "+row[1]);
 		
+		//检测大小写
 		row = db.getRow(result);
 		assertNotNull(row);
 		assertEquals(1L, row[0]);
 		assertEquals("JAMEs", row[1]);
-		System.out.println(row[0]);
+		System.out.println("row2 "+row[0]+" "+row[1]);
 		
 		row = db.getRow(result);
 		assertNotNull(row);
 		assertEquals(2L, row[0]);
 		assertEquals("PAUL", row[1]);
+		System.out.println("row3 "+row[0]+" "+row[1]);
 		
 		row = db.getRow(result);
 		assertNotNull(row);
+		System.out.println("row4 "+row[0]+" "+row[1]);
 		
 		row = db.getRow(result);
 		assertNull(row);
+		
+		//创建测试表
+		//db.execStatement("Create table kettle_testTable(id ");
+		
+		//检测字段大小写及类型映射
+		String[] namesAndTypes = meta.getFieldNamesAndTypes(20);
+		for(int i=0; i<namesAndTypes.length; i++) {
+			System.out.println("col"+i+" "+namesAndTypes[i]);
+		}
 		db.disconnect();
 	}
 }
