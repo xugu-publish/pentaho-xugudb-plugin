@@ -19,37 +19,48 @@ import org.pentaho.di.core.plugins.DatabasePluginType;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.row.RowMetaInterface;
 
+/**
+ * @author xugu-publish
+ * @since 1.8
+ *
+ */
 public class XuguDatabaseTest {
 	@BeforeClass
-	public static void setUpOnce() throws KettleException{
-		DatabasePluginType dbPluginType = (DatabasePluginType)PluginRegistry.getInstance().getPluginType( DatabasePluginType.class );
-	    dbPluginType.registerCustom( XuguDatabaseMeta.class, null, "Xugu", "Xugu", null, null );
-	    KettleClientEnvironment.init();
+	public static void setUpOnce() throws KettleException {
+		DatabasePluginType dbPluginType = (DatabasePluginType) PluginRegistry.getInstance()
+				.getPluginType(DatabasePluginType.class);
+		dbPluginType.registerCustom(XuguDatabaseMeta.class, null, "Xugu", "Xugu", null, null);
+		KettleClientEnvironment.init();
 	}
-	
-	//²âÊÔ¶ÁÈ¡Êı¾İ
+
+	/**
+	 * æµ‹è¯•è¯»å–æ•°æ®
+	 * 
+	 * @throws KettleDatabaseException
+	 * @throws SQLException
+	 */
 	@Test
-	public void testReadDataIT() throws KettleDatabaseException, SQLException{
+	public void testReadDataIT() throws KettleDatabaseException, SQLException {
 		XuguDatabaseMeta xuguMeta = new XuguDatabaseMeta();
 		xuguMeta.setPluginId("Xugu");
 		DatabaseMeta dbMeta = new DatabaseMeta();
-		//ÉèÖÃÔªÊı¾İĞÅÏ¢
+		// è®¾ç½®å…ƒæ•°æ®ä¿¡æ¯
 		dbMeta.setDatabaseInterface(xuguMeta);
 		dbMeta.setHostname("192.168.2.77");
 		dbMeta.setUsername("SYSDBA");
 		dbMeta.setPassword("SYSDBA");
 		dbMeta.setDBPort("5138");
 		dbMeta.setDBName("testDB");
-		System.out.println("TTTTTTTTTest connect "+dbMeta.getAttributes()+" "+dbMeta.getURL());
-	
-		//Á¬½ÓÊı¾İ¿â
+		System.out.println("TTTTTTTTTest connect " + dbMeta.getAttributes() + " " + dbMeta.getURL());
+
+		// è¿æ¥æ•°æ®åº“
 		Database db = new Database(new LoggingObject(this), dbMeta);
 		db.connect();
-		
-		//»ñÈ¡²âÊÔ½á¹û¼¯
+
+		// è·å–æµ‹è¯•ç»“æœé›†
 		ResultSet result = db.openQuery("SELECT * FROM TESTTABLE4");
-		
-		//¼ì²é½á¹û¼¯
+
+		// æ£€æŸ¥ç»“æœé›†
 		assertNotNull(result);
 		Object[] row = db.getRow(result);
 		RowMetaInterface meta = db.getMetaFromRow(row, result.getMetaData());
@@ -58,73 +69,73 @@ public class XuguDatabaseTest {
 		assertEquals(2, meta.size());
 		assertEquals(0L, row[0]);
 		assertEquals("TOM", row[1]);
-		System.out.println("row1 "+row[0]+" "+row[1]);
-		
-		//¼ì²âÊı¾İ¼°Æä´óĞ¡Ğ´ÊÇ·ñÕıÈ·
+		System.out.println("row1 " + row[0] + " " + row[1]);
+
+		// æ£€æµ‹æ•°æ®åŠå…¶å¤§å°å†™æ˜¯å¦æ­£ç¡®
 		row = db.getRow(result);
 		assertNotNull(row);
 		assertEquals(1L, row[0]);
 		assertEquals("JAMEs", row[1]);
-		System.out.println("row2 "+row[0]+" "+row[1]);
-		
+		System.out.println("row2 " + row[0] + " " + row[1]);
+
 		row = db.getRow(result);
 		assertNotNull(row);
 		assertEquals(2L, row[0]);
 		assertEquals("PAUL", row[1]);
-		System.out.println("row3 "+row[0]+" "+row[1]);
-		
+		System.out.println("row3 " + row[0] + " " + row[1]);
+
 		row = db.getRow(result);
 		assertNotNull(row);
-		System.out.println("row4 "+row[0]+" "+row[1]);
-		
+		System.out.println("row4 " + row[0] + " " + row[1]);
+
 		row = db.getRow(result);
 		assertNull(row);
-		
-		//´´½¨²âÊÔ±í
-		//db.execStatement("Create table kettle_testTable(id ");
-		
-		//»ñÈ¡²âÊÔ×Ö¶ÎÊı¾İÀàĞÍÓ³Éä
-		//Êı×ÖÀàĞÍ
+
+		// åˆ›å»ºæµ‹è¯•è¡¨
+		// db.execStatement("Create table kettle_testTable(id ");
+
+		// è·å–æµ‹è¯•å­—æ®µæ•°æ®ç±»å‹æ˜ å°„
+		// æ•°å­—ç±»å‹
 		ResultSet result1 = db.openQuery("SELECT * FROM type_test1");
 		Object[] row1 = db.getRow(result1);
 		RowMetaInterface meta1 = db.getMetaFromRow(row1, result1.getMetaData());
-		//×Ö·û¼°ÌØÊâÀàĞÍ
+		// å­—ç¬¦åŠç‰¹æ®Šç±»å‹
 		ResultSet result2 = db.openQuery("SELECT * FROM type_test2");
 		Object[] row2 = db.getRow(result2);
 		RowMetaInterface meta2 = db.getMetaFromRow(row2, result2.getMetaData());
-		//Ê±¼äÀàĞÍ
+		// æ—¶é—´ç±»å‹
 		ResultSet result3 = db.openQuery("SELECT * FROM type_test3");
 		Object[] row3 = db.getRow(result3);
 		RowMetaInterface meta3 = db.getMetaFromRow(row3, result3.getMetaData());
-		
-		//¼ì²â×Ö¶ÎÀàĞÍÓ³Éä
+
+		// æ£€æµ‹å­—æ®µç±»å‹æ˜ å°„
 		String[] namesAndTypes = meta1.getFieldNamesAndTypes(20);
 		System.out.println("Table1");
-		for(int i=0; i<namesAndTypes.length; i++) {
-			System.out.println("col"+i+" "+namesAndTypes[i]);
+		for (int i = 0; i < namesAndTypes.length; i++) {
+			System.out.println("col" + i + " " + namesAndTypes[i]);
 		}
 		namesAndTypes = meta2.getFieldNamesAndTypes(20);
 		System.out.println("Table2");
-		for(int i=0; i<namesAndTypes.length; i++) {
-			System.out.println("col"+i+" "+namesAndTypes[i]);
+		for (int i = 0; i < namesAndTypes.length; i++) {
+			System.out.println("col" + i + " " + namesAndTypes[i]);
 		}
 		namesAndTypes = meta3.getFieldNamesAndTypes(20);
 		System.out.println("Table3");
-		for(int i=0; i<namesAndTypes.length; i++) {
-			System.out.println("col"+i+" "+namesAndTypes[i]);
+		for (int i = 0; i < namesAndTypes.length; i++) {
+			System.out.println("col" + i + " " + namesAndTypes[i]);
 		}
-		
-		//²âÊÔ×Ö¶Î´óĞ¡Ğ´
+
+		// æµ‹è¯•å­—æ®µå¤§å°å†™
 		ResultSet result4 = db.openQuery("SELECT * FROM field_test");
 		Object[] row4 = db.getRow(result4);
 		RowMetaInterface meta4 = db.getMetaFromRow(row4, result4.getMetaData());
-		
+
 		namesAndTypes = meta4.getFieldNamesAndTypes(20);
 		System.out.println("Table4");
-		for(int i=0; i<namesAndTypes.length; i++) {
-			System.out.println("col"+i+" "+namesAndTypes[i]);
+		for (int i = 0; i < namesAndTypes.length; i++) {
+			System.out.println("col" + i + " " + namesAndTypes[i]);
 		}
-		
+
 		db.disconnect();
 	}
 }

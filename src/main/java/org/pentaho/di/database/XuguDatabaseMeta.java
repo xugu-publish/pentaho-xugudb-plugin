@@ -5,377 +5,534 @@ import org.pentaho.di.core.database.BaseDatabaseMeta;
 import org.pentaho.di.core.database.DatabaseInterface;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.core.plugins.DatabaseMetaPlugin;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Vector;
+//ËØ•Ê≥®Ëß£ÊåáÊòéËØ•Á±ª‰∏∫Êï∞ÊçÆÂ∫ìÊèí‰ª∂Á±ª
+@DatabaseMetaPlugin(type = "Xugu", typeDescription = "Xugu Database")
 
-//∏√◊¢Ω‚÷∏√˜∏√¿‡Œ™ ˝æ›ø‚≤Âº˛¿‡
-@DatabaseMetaPlugin(
-type = "Xugu",
-typeDescription = "Xugu"
-)
+/**
+ * Pentaho KettleÊï∞ÊçÆÂ∫ìÊèí‰ª∂(ËôöË∞∑Êï∞ÊçÆÂ∫ì)
+ * 
+ * @author xugu-publish
+ * @sinc 1.8
+ * @date 2019-02-23
+ */
+public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
-public class XuguDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface{	
-	//private static final int VARCHAR_LIMIT = 65_535;
-	// ∑µªÿ¡¨Ω”¿‡–Õ ƒø«∞‘› ±÷ß≥÷JDBC
-	@Override
-	public int[] getAccessTypeList(){
-		return new int[]{ DatabaseMeta.TYPE_ACCESS_NATIVE};
-	}
-
-	// ∑µªÿƒ¨»œ∂Àø⁄
-	@Override
-	public int  getDefaultDatabasePort(){
-		return 5138;
-	}
+	/**
+	 * VARCHARÁ±ªÂûãÊï∞ÊçÆÊúÄÂ§ßÈïøÂ∫¶(ËôöË∞∑VARCHARÊúÄÂ§ßÈïøÂ∫¶‰æùËµñË°å64KÁöÑÈôêÂà∂ÔºåÊó†ÂèëÁ≤æÁ°ÆÁ°ÆÂÆöÔºå‰æùÊçÆOracleÊúÄÂ§ßÈïøÂ∫¶ÁïåÂÆö(Â≠óËäÇÊúÄÂ§ßÈïøÂ∫¶))
+	 */
+	private static final int INTEGER_LIMIT = 9;
 	
-	// Œ™≤È—Øœﬁ÷∆–– ˝
+	private static final int BIGINT_LIMIT = 19;
+	
+	private static final int VARCHAR_LIMIT = 4000;
+
+	/**
+	 * ËøîÂõûËøûÊé•Á±ªÂûã ÁõÆÂâçÊöÇÊó∂‰ªÖÊîØÊåÅJDBC(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getAccessTypeList()
+	 */
 	@Override
-	public String getLimitClause(int nrRows){
-		return " LIMIT " + nrRows;// mysql
+	public int[] getAccessTypeList() {
+		return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
 	}
 
-	// ∑µªÿ“ª∏ˆπÿ”⁄±Ìµƒ◊Ó–°≤È—Ø”Ôæ‰
+	/**
+	 * ËøîÂõûÈ©±Âä®Á±ª(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.DatabaseInterface#getDriverClass()
+	 */
 	@Override
-	public String getSQLQueryFields(String tableName){
+	public String getDriverClass() {
+		return "com.xugu.cloudjdbc.Driver";
+	}
+
+	/**
+	 * ËøîÂõûÊï∞ÊçÆÂ∫ìËøûÊé•url(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.DatabaseInterface#getURL(java.lang.String,
+	 *      java.lang.String, java.lang.String)
+	 */
+	@Override
+	public String getURL(String hostName, String port, String databaseName) {
+
+		if (Utils.isEmpty(port)) {
+			return "jdbc:xugu://" + hostName + "/" + databaseName;
+		} else {
+			return "jdbc:xugu://" + hostName + ":" + port + "/" + databaseName;
+		}
+	}
+
+	/**
+	 * DEFAULT SETTINGS FOR XUGU DATABASES
+	 * ********************************************************************************
+	 */
+	/**
+	 * ËøîÂõûÈªòËÆ§Á´ØÂè£(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getDefaultDatabasePort()
+	 */
+	@Override
+	public int getDefaultDatabasePort() {
+		if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
+			return 5138;
+		}
+		return -1;
+	}
+
+	/**
+	 * @return The extra option separator in database URL for this platform (usually
+	 *         this is semicolon ; )
+	 */
+	@Override
+	public String getExtraOptionSeparator() {
+		return "&";
+	}
+
+	/**
+	 * @return This indicator separates the normal URL from the options
+	 */
+	@Override
+	public String getExtraOptionIndicator() {
+		return "?";
+	}
+
+	/**
+	 * ‰∏∫Êü•ËØ¢ÈôêÂà∂Ë°åÊï∞(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getLimitClause(int)
+	 */
+	@Override
+	public String getLimitClause(int nrRows) {
+		return " LIMIT " + nrRows;
+	}
+
+	/**
+	 * ËøîÂõû‰∏Ä‰∏™ÂÖ≥‰∫éË°®ÁöÑÊúÄÂ∞èÊü•ËØ¢ËØ≠Âè•(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getSQLQueryFields(java.lang.
+	 *      String)
+	 */
+	@Override
+	public String getSQLQueryFields(String tableName) {
 		return "SELECT * FROM " + tableName + " LIMIT 0";
 	}
-	
-	// Õ®π˝≤È—Ø”Ôæ‰≈–∂œ±Ì «∑Ò¥Ê‘⁄ »Ù≈◊≥ˆ“Ï≥£‘Ú±Ì≤ª¥Ê‘⁄
+
+	/**
+	 * Get the SQL to get the next value of a sequence.
+	 *
+	 * @param sequenceName The sequence name
+	 * @return the SQL to get the next value of a sequence. (Oracle only)
+	 */
 	@Override
-	public String getSQLTableExists(String tableName){
+	public String getSQLNextSequenceValue(String sequenceName) {
+		return "SELECT " + sequenceName + ".nextval FROM dual";
+	}
+
+	/**
+	 * Check if a sequence exists.
+	 *
+	 * @param sequenceName The sequence to check
+	 * @return The SQL to get the name of the sequence back from the databases data
+	 *         dictionary
+	 */
+	@Override
+	public String getSQLSequenceExists(String sequenceName) {
+		int dotPos = sequenceName.indexOf('.');
+		String sql = "";
+		if (dotPos == -1) {
+			// if schema is not specified try to get sequence which belongs to current user
+			sql = "SELECT * FROM USER_SEQUENCES WHERE SEQ_NAME = '" + sequenceName.toUpperCase() + "'";
+		} else {
+			String schemaName = sequenceName.substring(0, dotPos);
+			String seqName = sequenceName.substring(dotPos + 1);
+			sql = "SELECT SEQ.* FROM USER_SEQUENCES SEQ LEFT JOIN USER_SCHEMAS SCH ON SEQ.SCHEMA_ID = SCH.SCHEMA_ID WHERE SEQ.SEQ_NAME = '"
+					+ seqName.toUpperCase() + "' AND SCH.SCHEMA_NAME = '" + schemaName.toUpperCase() + "'";
+		}
+		return sql;
+	}
+
+	/**
+	 * ÈÄöËøáÊü•ËØ¢ËØ≠Âè•Âà§Êñ≠Ë°®ÊòØÂê¶Â≠òÂú® Ëã•ÊäõÂá∫ÂºÇÂ∏∏ÂàôË°®‰∏çÂ≠òÂú®(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getSQLTableExists(java.lang.
+	 *      String)
+	 */
+	@Override
+	public String getSQLTableExists(String tableName) {
 		return getSQLQueryFields(tableName);
 	}
 
-	// ∑µªÿ“ª∏ˆπÿ”⁄¡–µƒ◊Ó–°≤È—Ø”Ôæ‰ 
-	public String getSQLQueryColumnFields(String columnName, String tableName){
+	/**
+	 * ËøîÂõû‰∏Ä‰∏™ÂÖ≥‰∫éÂàóÁöÑÊúÄÂ∞èÊü•ËØ¢ËØ≠Âè•
+	 */
+	public String getSQLQueryColumnFields(String columnName, String tableName) {
 		return "SELECT " + columnName + " FROM " + tableName + " LIMIT 0";
 	}
-	
-	// Õ®π˝≤È—Ø”Ôæ‰≈–∂œ¡– «∑Ò¥Ê‘⁄ »Ù≈◊≥ˆ“Ï≥£‘Ú¡–≤ª¥Ê‘⁄
+
+	/**
+	 * ÈÄöËøáÊü•ËØ¢ËØ≠Âè•Âà§Êñ≠ÂàóÊòØÂê¶Â≠òÂú® Ëã•ÊäõÂá∫ÂºÇÂ∏∏ÂàôÂàó‰∏çÂ≠òÂú®(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getSQLColumnExists(java.lang.
+	 *      String, java.lang.String)
+	 */
 	@Override
-	public String getSQLColumnExists(String columnName, String tableName){
+	public String getSQLColumnExists(String columnName, String tableName) {
 		return getSQLQueryColumnFields(columnName, tableName);
 	}
 
-	// ∑µªÿ«˝∂Ø¿‡
-	public String getDriverClass(){
-		return "com.xugu.cloudjdbc.Driver";
-	}
-	
-	// ∑µªÿ ˝æ›ø‚¡¨Ω”url
-	public String getURL(String hostName, String port, String databaseName){
-		Properties properties = new Properties();
-		//  π”√InPutStream¡˜∂¡»°propertiesŒƒº˛
-		BufferedReader bufferedReader;
-		try {
-			bufferedReader = new BufferedReader(new FileReader("connectProperty.properties"));
-			properties.load(bufferedReader);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		// ªÒ»°key∂‘”¶µƒvalue÷µ
-		String char_set = properties.getProperty("char_set");
-		String lock_time = properties.getProperty("lock_time");
-		String lob_ret = properties.getProperty("lob_ret");
-		String return_rowid = properties.getProperty("return_rowid");
-		String auto_commit = properties.getProperty("auto_commit");
-		String conn_type = properties.getProperty("conn_type");
-		String ips = properties.getProperty("ips");
-		String sql_cursor = properties.getProperty("sql_cursor");
-		// ππΩ®¡¨Ω”◊÷∑˚¥Æ
-		String con_str = "jdbc:xugu://" + hostName + ":" + port + "/" +databaseName;
-		Vector<String> pro_str = new Vector<String>();
-		if(char_set!=null && char_set.length()>0) {
-			pro_str.add("char_set="+char_set);
-		}
-		if(lock_time!=null && lock_time.length()>0) {
-			pro_str.add("lock_time="+lock_time);
-		}
-		if(lob_ret!=null && lob_ret.length()>0) {
-			pro_str.add("lob_ret="+lob_ret);		
-		}
-		if(return_rowid!=null && return_rowid.length()>0) {
-			pro_str.add("return_rowid="+return_rowid);
-		}
-		if(auto_commit!=null && auto_commit.length()>0) {
-			pro_str.add("auto_commit="+auto_commit);
-		}
-		if(conn_type!=null && conn_type.length()>0) {
-			pro_str.add("conn_type="+conn_type);
-		}
-		if(ips!=null && ips.length()>0) {
-			pro_str.add("ips="+ips);
-		}
-		if(sql_cursor!=null && sql_cursor.length()>0) {
-			pro_str.add("sql_cursor="+sql_cursor);
-		}
-		if(pro_str.size()!=0) {
-			con_str+="?";
-		}
-		for(int i=0; i<pro_str.size(); i++) {
-			if(i!=0) {
-				con_str += "&";
-			}
-			con_str += pro_str.get(i);
-		}
-		return con_str;
+	/**
+	 * @return the SQL to retrieve the list of schemas or null if the JDBC metadata
+	 *         needs to be used.
+	 */
+	@Override
+	public String getSQLListOfSchemas() {
+		return "SELECT SCHEMA_NAME FROM ALL_SCHEMAS";
 	}
 
-	// «∑Ò÷ß≥÷Õ¨“Â¥ 
+	/**
+	 * @return The maximum number of columns in a database, <=0 means: no known
+	 *         limit
+	 */
 	@Override
-	public boolean supportsSynonyms(){
+	public int getMaxColumnsInIndex() {
+		return 0;
+	}
+
+	/**
+	 * @return true if the database supports sequences
+	 */
+	@Override
+	public boolean supportsSequences() {
 		return true;
 	}
 
-	// ∑µªÿ◊÷∂Œ∂®“Â ”√”⁄◊È◊∞sql”Ôæ‰
-	public String getFieldDefinition(ValueMetaInterface v, String tk, String pk, boolean use_autoinc, boolean add_fieldName, boolean add_cr){
+	/**
+	 * ÊòØÂê¶ÊîØÊåÅÂêå‰πâËØç(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#supportsSynonyms()
+	 */
+	@Override
+	public boolean supportsSynonyms() {
+		return true;
+	}
+
+	/**
+	 * @return The SQL on this database to get a list of sequences.
+	 */
+	@Override
+	public String getSQLListOfSequences() {
+		return "SELECT SEQ_NAME FROM all_sequences";
+	}
+
+	/**
+	 * @return true if the database supports a boolean, bit, logical, ... datatype
+	 *         The default is false: map to a string.
+	 */
+	@Override
+	public boolean supportsBooleanDataType() {
+		return true;
+	}
+
+	/**
+	 * @return true if the database supports the Timestamp data type (nanosecond
+	 *         precision and all)
+	 */
+	@Override
+	public boolean supportsTimestampDataType() {
+		return true;
+	}
+
+	/**
+	 * Oracle does not support a construct like 'drop table if exists', which is
+	 * apparently legal syntax in many other RDBMSs. So we need to implement the
+	 * same behavior and avoid throwing 'table does not exist' exception.
+	 *
+	 * @param tableName Name of the table to drop
+	 * @return 'drop table if exists'-like statement for Oracle
+	 */
+	@Override
+	public String getDropTableIfExistsStatement(String tableName) {
+		return "BEGIN EXECUTE IMMEDIATE 'DROP TABLE " + tableName + "';"
+				+ " EXCEPTION WHEN OTHERS THEN IF SQLCODE != 192 THEN RAISE; END IF; END;";
+	}
+
+	/**
+	 * ËøîÂõûÂ≠óÊÆµÂÆö‰πâ Áî®‰∫éÁªÑË£ÖsqlËØ≠Âè•(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.DatabaseInterface#getFieldDefinition(org.pentaho
+	 *      .di.core.row.ValueMetaInterface, java.lang.String, java.lang.String,
+	 *      boolean, boolean, boolean)
+	 */
+	@Override
+	public String getFieldDefinition(ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+			boolean addFieldName, boolean addCr) {
 		String retval = "";
-		//ªÒ»°◊÷∂Œ–≈œ¢
+		// Ëé∑ÂèñÂ≠óÊÆµ‰ø°ÊÅØ
 		String fieldName = v.getName();
-		//clob¿‡–Õ≥§∂»¥¶¿Ì ≥§∂»“ª÷¬‘Ú≤ª–Ë“™¥¶¿Ì
-		//			if(v.getLength() == DatabaseMeta.CLOB_LENGTH) {
-		//				v.setLength(getMaxTextFieldLength());
-		//			}
-		//◊÷∂Œ≥§∂»
+		// clobÁ±ªÂûãÈïøÂ∫¶Â§ÑÁêÜ ÈïøÂ∫¶‰∏ÄËá¥Âàô‰∏çÈúÄË¶ÅÂ§ÑÁêÜ
+		if (v.getLength() == DatabaseMeta.CLOB_LENGTH) {
+			v.setLength(getMaxTextFieldLength());
+		}
+		// Â≠óÊÆµÈïøÂ∫¶
 		int length = v.getLength();
-		//◊÷∂Œæ´∂»
+		// Â≠óÊÆµÁ≤æÂ∫¶
 		int precision = v.getPrecision();
-		//◊÷∂Œ¿‡–Õ
-		int type = v.getType();
-		
-		// –¬‘ˆ“ª¡–
-		if(add_fieldName) {
+
+		// Êñ∞Â¢û‰∏ÄÂàó
+		if (addFieldName) {
 			retval += fieldName + " ";
 		}
-	
-		switch(type) {
-			case ValueMetaInterface.TYPE_DATE:
-				retval += "DATE";
-				break;
-			case ValueMetaInterface.TYPE_TIMESTAMP:
-				retval += "DATETIME";
-				break;
-			case ValueMetaInterface.TYPE_BOOLEAN:
-				retval += "BOOLEAN";
-				break;
-			case ValueMetaInterface.TYPE_NUMBER:
-			case ValueMetaInterface.TYPE_INTEGER:
-			case ValueMetaInterface.TYPE_BIGNUMBER:
-				// »Áπ˚–ﬁ∏ƒµƒ «º¸ ‘ÚΩ´∆‰¿‡–Õ÷±Ω”…ËŒ™BigInt
-				if(fieldName.equalsIgnoreCase(tk)||
-						fieldName.equalsIgnoreCase(pk)) {
-					// …ËŒ™◊‘‘ˆ
-					if(use_autoinc) {
-						retval += "BIGINT identity(0,1) NOT NULL PRIMARY KEY";
-					}else {
-						retval += "BIGINT NOT NULL PRIMARY KEY";
-					}
-				}else {
-					// ’˚–Õ ˝æ›
-					if(precision==0) {
-						if(length>9) {
-							// 10-18Œª’˚ ˝ …ËŒ™BIGINT
-							if(length<19) {
-								retval += "BIGINT";
-							}
-							// 19Œªº∞“‘…œ…ËŒ™NUMERIC
-							else {
-								retval += "NUMERIC(" + length + ")";
-							}
-						}else {
-							retval += "INTEGER";
+
+		// Â≠óÊÆµÁ±ªÂûã
+		int type = v.getType();
+		switch (type) {
+		case ValueMetaInterface.TYPE_DATE:
+			retval += "DATE";
+			break;
+		case ValueMetaInterface.TYPE_TIMESTAMP:
+			retval += "DATETIME";
+			break;
+		case ValueMetaInterface.TYPE_BOOLEAN:
+			retval += "BOOLEAN";
+			break;
+		case ValueMetaInterface.TYPE_INTEGER:
+			retval += "INTEGER";
+			break;
+		case ValueMetaInterface.TYPE_NUMBER:
+			// Â¶ÇÊûú‰øÆÊîπÁöÑÊòØÈîÆ ÂàôÂ∞ÜÂÖ∂Á±ªÂûãÁõ¥Êé•ËÆæ‰∏∫BigInt
+			if (fieldName.equalsIgnoreCase(tk) || fieldName.equalsIgnoreCase(pk)) {
+				// ËÆæ‰∏∫Ëá™Â¢û
+				if (useAutoinc) {
+					retval += "BIGINT identity(1,1) NOT NULL PRIMARY KEY";
+				} else {
+					retval += "BIGINT NOT NULL PRIMARY KEY";
+				}
+			} else {
+				// Êï¥ÂûãÊï∞ÊçÆ
+				if (precision == 0) {
+					if (length > INTEGER_LIMIT) {
+						// 10-18‰ΩçÊï¥Êï∞ ËÆæ‰∏∫BIGINT
+						if (length < BIGINT_LIMIT) {
+							retval += "BIGINT";
 						}
-					}
-					// ∏°µ„–Õ ˝æ›
-					else {
-						if(length>15) {
-							retval += "NUMERIC(" + length;
-							if(precision>0) {
-								retval += ", " + precision;
-							}
-							retval += ")";
-						}else {
-							retval += "DOUBLE";
+						// 19‰ΩçÂèä‰ª•‰∏äËÆæ‰∏∫NUMERIC
+						else {
+							retval += "NUMERIC(" + length + ")";
 						}
+					} else {
+						retval += "INTEGER";
 					}
 				}
-				break;
-			case ValueMetaInterface.TYPE_STRING:
-				if(length == 1) {
-					retval += "CHAR(1)";
-				}else if(length < 65536) {
-					retval += "VARCHAR(" + length + ")";
-				}else {
-					retval += "CLOB";
+				// ÊµÆÁÇπÂûãÊï∞ÊçÆ
+				else {
+					retval += "NUMERIC(" + length;
+					if (precision > 0) {
+						retval += ", " + precision;
+					}
+					retval += ")";
 				}
-				break;
-			case ValueMetaInterface.TYPE_BINARY:
-				retval += "BINARY";
-					break;
-			default:
-				break;
+			}
+			break;
+		case ValueMetaInterface.TYPE_BIGNUMBER:
+			retval += "NUMBER";
+			if (length > 0) {
+				retval += "(" + length;
+				if (precision > 0) {
+					retval += ", " + precision;
+				}
+				retval += ")";
+			}
+			break;
+		case ValueMetaInterface.TYPE_STRING:
+			if (length < 1) {
+				retval += "VARCHAR(-1)";
+			} else if (length >= VARCHAR_LIMIT) {
+				retval += "CLOB";
+			} else {
+				retval += "VARCHAR(" + length + ")";
+			}
+			break;
+		case ValueMetaInterface.TYPE_BINARY:
+			retval += "BINARY";
+			break;
+		default:
+			retval += " UNKNOWN";
+			break;
 		}
-		
-		if(add_cr) {
+
+		if (addCr) {
 			retval += Const.CR;
 		}
-		
+
 		return retval;
 	}
 
-	// ππ‘Ï‘ˆº”¡–µƒSql”Ôæ‰
-	public String getAddColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean use_autoinc, String pk, boolean semicolon){
-		String s =  "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false);
-		System.out.println("ADD..."+s);
-		return "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false);
-	}
-
-	// ππ‘Ï–ﬁ∏ƒ¡–µƒSql”Ôæ‰
-	public String getModifyColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean use_autoinc, String pk, boolean semicolon){		
-		String s = "ALTER TABLE " + tableName +" ALTER COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false);
-		System.out.println("Modify..."+s);
-		return "ALTER TABLE " + tableName +" ALTER COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false);
-	}
-
-	// ππ‘Ï…æ≥˝¡–µƒSql”Ôæ‰
+	/**
+	 * ÊûÑÈÄ†Â¢ûÂä†ÂàóÁöÑSqlËØ≠Âè•(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.DatabaseInterface#getAddColumnStatement(java.
+	 *      lang.String, org.pentaho.di.core.row.ValueMetaInterface,
+	 *      java.lang.String, boolean, java.lang.String, boolean)
+	 */
 	@Override
-	public String getDropColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean use_autoinc, String pk, boolean semicolon) {
+	public String getAddColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean useAutoinc,
+			String pk, boolean semicolon) {
+		String s = "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+		System.out.println("ADD..." + s);
+		return "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+	}
+
+	/**
+	 * ÊûÑÈÄ†‰øÆÊîπÂàóÁöÑSqlËØ≠Âè•(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.DatabaseInterface#getModifyColumnStatement(java.
+	 *      lang.String, org.pentaho.di.core.row.ValueMetaInterface,
+	 *      java.lang.String, boolean, java.lang.String, boolean)
+	 */
+	@Override
+	public String getModifyColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean useAutoinc,
+			String pk, boolean semicolon) {
+		String s = "ALTER TABLE " + tableName + " ALTER COLUMN "
+				+ getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+		System.out.println("Modify..." + s);
+		return "ALTER TABLE " + tableName + " ALTER COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+	}
+
+	/**
+	 * ÊûÑÈÄ†Âà†Èô§ÂàóÁöÑSqlËØ≠Âè•(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getDropColumnStatement(java.
+	 *      lang.String, org.pentaho.di.core.row.ValueMetaInterface,
+	 *      java.lang.String, boolean, java.lang.String, boolean)
+	 */
+	@Override
+	public String getDropColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean useAutoinc,
+			String pk, boolean semicolon) {
 		String s = "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName();
-		System.out.println("Drop..."+s);
+		System.out.println("Drop..." + s);
 		return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName();
 	}
 
-	// ªÒ»°±£¡Ù◊÷
+	/**
+	 * Ëé∑Âèñ‰øùÁïôÂ≠ó(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getReservedWords()
+	 */
 	@Override
-	public String[] getReservedWords(){
-		return new String[]{
-			"ABORT","ABOVE","ABSOLUTE","ACCESS","ACCOUNT","ACTION",
-		"ADD","AFTER","AGGREGATE","ALL","ALTER","ANALYSE","ANALYZE",
-		"AND","ANY","AOVERLAPS","APPEND","ARCHIVELOG","ARE","ARRAY",
-		"AS","ASC","AT","AUDIT","AUDITOR", "AUTHID","AUTHORIZATION",
-		"AUTOBACKUP","BACKWARD","BADFILE", "BCONTAINS", "BEFORE", "BEGIN",
-		"BETWEEN", "BINARY", "BINTERSECTS", "BIT", "BLOCK", "BLOCKS",
-		"BODY", "BOTH", "BOUND", "BOVERLAPS", "BREAK", "BUFFER_POOL", 
-		"BUILD", "BULK", "BWITHIN", "BYCACHE", "CALL", "CASCADE", "CASE", 
-		"CAST", "CATCH", "CATEGORY", "CHAIN", "CHAR", "CHARACTER", "CHARACTERISTICS", 
-		"CHECK", "CHECKPOINT", "CHUNK", "CLOSE", "CLUSTER", "COALESCE", 
-		"COLLATE", "COLLECT", "COLUMN", "COMMENT", "COMMIT", "COMMITTED", 
-		"COMPLETE", "COMPRESS", "COMPUTE", "CONNECT",  "CONSTANT", "CONSTRAINT", 
-		"CONSTRAINTS", "CONSTRUCTOR", "CONTAINS", "CONTEXT", "CONTINUE", 
-		"COPY", "CORRESPONDING", "CREATE", "CREATEDB", "CREATEUSER", 
-		"CROSSCROSSES", "CUBE", "CURRENT", "CURSOR", "CYCLEDATABASE", "DATAFILE", 
-		"DATE", "DATETIME", "DAY", "DBA", "DEALLOCATE", "DEC", "DECIMAL", "DECLARE", 
-		"DECODE", "DECRYPT", "DEFAULT", "DEFERRABLE", "DEFERRED", "DELETE", 
-		"DELIMITED", "DELIMITERS", "DEMAND", "DESC", "DESCRIBE", "DETERMINISTIC",
-		"DIR", "DISABLE", "DISASSEMBLE", "DISCORDFILE", "DISJOINT", "DISTINCT", 
-		"DO", "DOMAIN", "DOUBLE", "DRIVEN", "DROPEACH", "ELEMENT", "ELSE", "ELSEIF",
-		"ELSIF", "ENABLE", "ENCODING", 
-		"ENCRYPT", "ENCRYPTOR", "END", "ENDCASE", "ENDFOR", "ENDIF", "ENDLOOP", "EQUALS",
-		"ESCAPE", "EVERY", "EXCEPT", "EXCEPTION", "EXCEPTIONS", "EXCLUSIVE", 
-		"EXEC", "EXECUTE", "EXISTS", "EXIT", "EXPIRE", "EXPLAIN", "EXPORT", 
-		"EXTEND", "EXTERNAL", "EXTRACTFALSE", "FAST", "FETCH", "FIELD", "FIELDS",
-		"FILTER", "FINAL", "FINALLY", 
-		"FIRST", "FLOAT", "FOLLOWING", "FOR", "FORALL", "FORCE", "FOREIGN", 
-		"FORWARD", "FOUND", "FREELIST", "FREELISTS", "FROM", "FULL", "FUNCTIONGENERATED", 
-		"GET", "GLOBAL", "GOTO", "GRANT", "GREATEST", "GROUP", "GROUPING", 
-		"GROUPSHANDLER", "HASH", "HAVING", "HEAP", "HIDE", "HOTSPOT", "HOURIDENTIFIED",
-		"IDENTIFIER", "IDENTITY", "IF", "ILIKE", "IMMEDIATE", "IMPORT", "IN",
-		"INCLUDE", "INCREMENT", "INDEX", "INDEXTYPE", "INDICATOR",
-		"INDICES", "INHERITS", "INIT", "INITIAL", "INITIALLY", "INITRANS", "INNER",
-		"INOUT", "INSENSITIVE", "INSERT", "INSTANTIABLE", "INSTEAD",
-		"INTERSECTINTERSECTS", "INTERVAL", "INTO", "IO", "IS", "ISNULL",
-		"ISOLATION", "ISOPENJOB", "JOINK", "KEEP",  "KEY",  "KEYSETLABEL",
-		"LANGUAGE", "LAST", "LEADING", "LEAST", "LEAVE", "LEFT", "LEFTOF",
-		"LENGTH", "LESS", "LEVEL", "LEVELS", "LEXER", "LIBRARY", "LIKE", "LIMIT", 
-		"LINK", "LIST", "LISTEN", "LOAD", "LOB", "LOCAL", "LOCATION", "LOCATOR",
-		"LOCK", "LOGFILE", "LOGGING", "LOGIN", "LOGOUT", "LOOP", "LOVERLAPSM",
-		"MATCH", "MATERIALIZED", "MAX", "MAXEXTENTS", "MAXSIZE", "MAXTRANS", 
-		"MAXVALUE", "MAXVALUES", "MEMBER", "MEMORY", "MERGEMINEXTENTS", "MINUS",
-		"MINUTE", "MINVALUE", "MISSING", "MODE", "MODIFY", "MONTH", "MOVEMENTNAME",
-		"NAMES", "NATIONAL", "NATURAL", "NCHAR", "NESTED", "NEW", "NEWLINE", "NEXT",
-		"NO", "NOARCHIVELOG", "NOAUDIT", "NOCACHE", "NOCOMPRESS", "NOCREATEDB",
-		"NOCREATEUSER", "NOCYCLE", "NODE", "NOFORCE", "NOFOUND", "NOLOGGING", "NONE", 
-		"NOORDER", "NOPARALLEL", "NOT", "NOTFOUND", "NOTHING", "NOTIFY", "NOTNULL",
-		"NOVALIDATE", "NOWAIT", "NULL", "NULLIF", "NULLS", "NUMBER", "NUMERIC",
-		"NVARCHAR", "NVARCHAR2", "NVL", "NVL2", "OBJECT", "OF", "OFF", "OFFLINE", 
-		"OFFSET", "OIDINDEX", "OIDS", "OLD", "ON", "ONLINE", "ONLY", "OPEN", 
-		"OPERATOR", "OPTION", "OR", "ORDER", "ORGANIZATION", "OTHERVALUES", "OUT",
-		"OUTER", "OVER", "OVERLAPS", "OWNERPACKAGE", "PARALLEL", "PARAMETERS", 
-		"PARTIAL", "PARTITION", "PARTITIONS", "PASSWORD", "PCTFREE", "PCTINCREASE",
-		"PCTUSED", "PCTVERSION", "PERIOD", "POLICY", "PRAGMA", "PREBUILT", "PRECEDING",
-		"PRECISION", "PREPARE", "PRESERVE", "PRIMARY", "PRIOR", "PRIORITY", "PRIVILEGES",
-		"PROCEDURAL", "PROCEDURE", "PROTECTED", "PUBLICQUERY", "QUOTARAISE", "RANGE", 
-		"RAW", "READ", "READS", "REBUILD", "RECOMPILE", "RECORD", "RECORDS", "RECYCLE",
-		"REDUCED", "REF", "REFERENCES", "REFERENCING", "REFRESH", "REINDEX", "RELATIVE", 
-		"RENAME", "REPEATABLE",  "REPLACE", "REPLICATION", "RESOURCE", "RESTART",
-		"RESTORE", "RESTRICT", "RESULT", "RETURN", "RETURNING", "REVERSE", "REVOKE",
-		"REWRITE", "RIGHT", "RIGHTOF", "ROLE", "ROLLBACK", "ROLLUP", "ROVERLAPS", 
-		"ROW", "ROWCOUNT", "ROWID", "ROWS", "ROWTYPE", "RULE", "RUNSAVEPOINT", "SCHEMA",
-		"SCROLL", "SECOND", "SEGMENT", "SELECT", "SELF", "SEQUENCE", "SERIALIZABLE",
-		"SESSION", "SET", "SETOF", "SETS", "SHARE", "SHOW", "SHUTDOWN", "SIBLINGS",
-		"SIZE", "SLOW", "SNAPSHOT", "SOME", "SPATIAL", "SPLIT", "SSO", "STANDBY",
-		"START", "STATEMENT", "STATIC", "STATISTICS", "STEP", "STOP", "STORAGE", "STORE",
-		"STREAM", "SUBPARTITIONSUBPARTITIONS", "SUBTYPE", "SUCCESSFUL", "SYNONYM", 
-		"SYSTEMTABLE", "TABLESPACE", "TEMP", "TEMPLATE", "TEMPORARY", 
-		"TERMINATED", "THAN", "THEN", "THROW", "TIME", "TIMESTAMP", "TO", "TOP",
-		"TOPOVERLAPS", "TOUCHES", "TRACE", "TRAILING", "TRAN", "TRANSACTION",
-		"TRIGGER", "TRUE", "TRUNCATE", "TRUSTED", "TRY", "TYPEUNBOUNDED", "UNDER",
-		"UNDO", "UNIFORM", "UNION", "UNIQUE", "UNLIMITED", "UNLISTEN", "UNLOCK",
-		"UNPROTECTED", "UNTIL", "UOVERLAPS", "UPDATE", "USE", "USER", "USINGVACUUM",
-		"VALID", "VALIDATE", "VALUE", "VALUES", "VARCHAR", "VARCHAR2", "VARRAY",
-		"VARYING", "VERBOSE", "VERSION", "VIEW", "VOCABLEWAIT", "WHEN", "WHENEVER",
-		"WHERE", "WHILE", "WITH", "WITHIN", "WITHOUT", "WORK", "WRITE", "XML", "YEAR", "ZONE"
-		};
+	public String[] getReservedWords() {
+		return new String[] { "ABORT", "ABOVE", "ABSOLUTE", "ACCESS", "ACCOUNT", "ACTION", "ADD", "AFTER", "AGGREGATE",
+				"ALL", "ALTER", "ANALYSE", "ANALYZE", "AND", "ANY", "AOVERLAPS", "APPEND", "ARCHIVELOG", "ARE", "ARRAY",
+				"AS", "ASC", "AT", "AUDIT", "AUDITOR", "AUTHID", "AUTHORIZATION", "AUTOBACKUP", "BACKWARD", "BADFILE",
+				"BCONTAINS", "BEFORE", "BEGIN", "BETWEEN", "BINARY", "BINTERSECTS", "BIT", "BLOCK", "BLOCKS", "BODY",
+				"BOTH", "BOUND", "BOVERLAPS", "BREAK", "BUFFER_POOL", "BUILD", "BULK", "BWITHIN", "BYCACHE", "CALL",
+				"CASCADE", "CASE", "CAST", "CATCH", "CATEGORY", "CHAIN", "CHAR", "CHARACTER", "CHARACTERISTICS",
+				"CHECK", "CHECKPOINT", "CHUNK", "CLOSE", "CLUSTER", "COALESCE", "COLLATE", "COLLECT", "COLUMN",
+				"COMMENT", "COMMIT", "COMMITTED", "COMPLETE", "COMPRESS", "COMPUTE", "CONNECT", "CONSTANT",
+				"CONSTRAINT", "CONSTRAINTS", "CONSTRUCTOR", "CONTAINS", "CONTEXT", "CONTINUE", "COPY", "CORRESPONDING",
+				"CREATE", "CREATEDB", "CREATEUSER", "CROSSCROSSES", "CUBE", "CURRENT", "CURSOR", "CYCLEDATABASE",
+				"DATAFILE", "DATE", "DATETIME", "DAY", "DBA", "DEALLOCATE", "DEC", "DECIMAL", "DECLARE", "DECODE",
+				"DECRYPT", "DEFAULT", "DEFERRABLE", "DEFERRED", "DELETE", "DELIMITED", "DELIMITERS", "DEMAND", "DESC",
+				"DESCRIBE", "DETERMINISTIC", "DIR", "DISABLE", "DISASSEMBLE", "DISCORDFILE", "DISJOINT", "DISTINCT",
+				"DO", "DOMAIN", "DOUBLE", "DRIVEN", "DROPEACH", "ELEMENT", "ELSE", "ELSEIF", "ELSIF", "ENABLE",
+				"ENCODING", "ENCRYPT", "ENCRYPTOR", "END", "ENDCASE", "ENDFOR", "ENDIF", "ENDLOOP", "EQUALS", "ESCAPE",
+				"EVERY", "EXCEPT", "EXCEPTION", "EXCEPTIONS", "EXCLUSIVE", "EXEC", "EXECUTE", "EXISTS", "EXIT",
+				"EXPIRE", "EXPLAIN", "EXPORT", "EXTEND", "EXTERNAL", "EXTRACTFALSE", "FAST", "FETCH", "FIELD", "FIELDS",
+				"FILTER", "FINAL", "FINALLY", "FIRST", "FLOAT", "FOLLOWING", "FOR", "FORALL", "FORCE", "FOREIGN",
+				"FORWARD", "FOUND", "FREELIST", "FREELISTS", "FROM", "FULL", "FUNCTIONGENERATED", "GET", "GLOBAL",
+				"GOTO", "GRANT", "GREATEST", "GROUP", "GROUPING", "GROUPSHANDLER", "HASH", "HAVING", "HEAP", "HIDE",
+				"HOTSPOT", "HOURIDENTIFIED", "IDENTIFIER", "IDENTITY", "IF", "ILIKE", "IMMEDIATE", "IMPORT", "IN",
+				"INCLUDE", "INCREMENT", "INDEX", "INDEXTYPE", "INDICATOR", "INDICES", "INHERITS", "INIT", "INITIAL",
+				"INITIALLY", "INITRANS", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INSTANTIABLE", "INSTEAD",
+				"INTERSECTINTERSECTS", "INTERVAL", "INTO", "IO", "IS", "ISNULL", "ISOLATION", "ISOPENJOB", "JOINK",
+				"KEEP", "KEY", "KEYSETLABEL", "LANGUAGE", "LAST", "LEADING", "LEAST", "LEAVE", "LEFT", "LEFTOF",
+				"LENGTH", "LESS", "LEVEL", "LEVELS", "LEXER", "LIBRARY", "LIKE", "LIMIT", "LINK", "LIST", "LISTEN",
+				"LOAD", "LOB", "LOCAL", "LOCATION", "LOCATOR", "LOCK", "LOGFILE", "LOGGING", "LOGIN", "LOGOUT", "LOOP",
+				"LOVERLAPSM", "MATCH", "MATERIALIZED", "MAX", "MAXEXTENTS", "MAXSIZE", "MAXTRANS", "MAXVALUE",
+				"MAXVALUES", "MEMBER", "MEMORY", "MERGEMINEXTENTS", "MINUS", "MINUTE", "MINVALUE", "MISSING", "MODE",
+				"MODIFY", "MONTH", "MOVEMENTNAME", "NAMES", "NATIONAL", "NATURAL", "NCHAR", "NESTED", "NEW", "NEWLINE",
+				"NEXT", "NO", "NOARCHIVELOG", "NOAUDIT", "NOCACHE", "NOCOMPRESS", "NOCREATEDB", "NOCREATEUSER",
+				"NOCYCLE", "NODE", "NOFORCE", "NOFOUND", "NOLOGGING", "NONE", "NOORDER", "NOPARALLEL", "NOT",
+				"NOTFOUND", "NOTHING", "NOTIFY", "NOTNULL", "NOVALIDATE", "NOWAIT", "NULL", "NULLIF", "NULLS", "NUMBER",
+				"NUMERIC", "NVARCHAR", "NVARCHAR2", "NVL", "NVL2", "OBJECT", "OF", "OFF", "OFFLINE", "OFFSET",
+				"OIDINDEX", "OIDS", "OLD", "ON", "ONLINE", "ONLY", "OPEN", "OPERATOR", "OPTION", "OR", "ORDER",
+				"ORGANIZATION", "OTHERVALUES", "OUT", "OUTER", "OVER", "OVERLAPS", "OWNERPACKAGE", "PARALLEL",
+				"PARAMETERS", "PARTIAL", "PARTITION", "PARTITIONS", "PASSWORD", "PCTFREE", "PCTINCREASE", "PCTUSED",
+				"PCTVERSION", "PERIOD", "POLICY", "PRAGMA", "PREBUILT", "PRECEDING", "PRECISION", "PREPARE", "PRESERVE",
+				"PRIMARY", "PRIOR", "PRIORITY", "PRIVILEGES", "PROCEDURAL", "PROCEDURE", "PROTECTED", "PUBLICQUERY",
+				"QUOTARAISE", "RANGE", "RAW", "READ", "READS", "REBUILD", "RECOMPILE", "RECORD", "RECORDS", "RECYCLE",
+				"REDUCED", "REF", "REFERENCES", "REFERENCING", "REFRESH", "REINDEX", "RELATIVE", "RENAME", "REPEATABLE",
+				"REPLACE", "REPLICATION", "RESOURCE", "RESTART", "RESTORE", "RESTRICT", "RESULT", "RETURN", "RETURNING",
+				"REVERSE", "REVOKE", "REWRITE", "RIGHT", "RIGHTOF", "ROLE", "ROLLBACK", "ROLLUP", "ROVERLAPS", "ROW",
+				"ROWCOUNT", "ROWID", "ROWS", "ROWTYPE", "RULE", "RUNSAVEPOINT", "SCHEMA", "SCROLL", "SECOND", "SEGMENT",
+				"SELECT", "SELF", "SEQUENCE", "SERIALIZABLE", "SESSION", "SET", "SETOF", "SETS", "SHARE", "SHOW",
+				"SHUTDOWN", "SIBLINGS", "SIZE", "SLOW", "SNAPSHOT", "SOME", "SPATIAL", "SPLIT", "SSO", "STANDBY",
+				"START", "STATEMENT", "STATIC", "STATISTICS", "STEP", "STOP", "STORAGE", "STORE", "STREAM",
+				"SUBPARTITIONSUBPARTITIONS", "SUBTYPE", "SUCCESSFUL", "SYNONYM", "SYSTEMTABLE", "TABLESPACE", "TEMP",
+				"TEMPLATE", "TEMPORARY", "TERMINATED", "THAN", "THEN", "THROW", "TIME", "TIMESTAMP", "TO", "TOP",
+				"TOPOVERLAPS", "TOUCHES", "TRACE", "TRAILING", "TRAN", "TRANSACTION", "TRIGGER", "TRUE", "TRUNCATE",
+				"TRUSTED", "TRY", "TYPEUNBOUNDED", "UNDER", "UNDO", "UNIFORM", "UNION", "UNIQUE", "UNLIMITED",
+				"UNLISTEN", "UNLOCK", "UNPROTECTED", "UNTIL", "UOVERLAPS", "UPDATE", "USE", "USER", "USINGVACUUM",
+				"VALID", "VALIDATE", "VALUE", "VALUES", "VARCHAR", "VARCHAR2", "VARRAY", "VARYING", "VERBOSE",
+				"VERSION", "VIEW", "VOCABLEWAIT", "WHEN", "WHENEVER", "WHERE", "WHILE", "WITH", "WITHIN", "WITHOUT",
+				"WORK", "WRITE", "XML", "YEAR", "ZONE" };
 	}
 
-	// ªÒ»°‘⁄œﬂ∞Ô÷˙Œƒµµµÿ÷∑
+	/**
+	 * Ëé∑ÂèñÂú®Á∫øÂ∏ÆÂä©ÊñáÊ°£Âú∞ÂùÄ÷∑(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#getExtraOptionsHelpText()
+	 */
 	@Override
-	public String getExtraOptionsHelpText(){
+	public String getExtraOptionsHelpText() {
 		return "";
 	}
 
-	// ªÒ»°À˘–Ëµƒjar∞¸
-	public String[] getUsedLibraries(){
-		return new String[]{"cloudjdbcV1002.jar"};
+	/**
+	 * Ëé∑ÂèñÊâÄÈúÄÁöÑjarÂåÖ(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.DatabaseInterface#getUsedLibraries()
+	 */
+	@Override
+	public String[] getUsedLibraries() {
+		return new String[] { "cloudjdbc-10.0.jar" };
 	}
 
-	// ∏Ò ΩªØSql”Ôæ‰
+	/**
+	 * Ê†ºÂºèÂåñSqlËØ≠Âè•(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#quoteSQLString(java.lang.
+	 *      String)
+	 */
 	@Override
-	public String quoteSQLString(String string){
+	public String quoteSQLString(String string) {
 		string = string.replaceAll("'", "\\\\'");
 		string = string.replaceAll("\\n", "\\\\n");
-		string = string.replaceAll("\\r",  "\\\\r");
-		return "'" + string +"'";
+		string = string.replaceAll("\\r", "\\\\r");
+		return "'" + string + "'";
 	}
 
-	// ø…∑Ò Õ∑≈SavePoint
+	/**
+	 * ÂèØÂê¶ÈáäÊîæSavePoint(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#releaseSavepoint()
+	 */
 	@Override
-	public boolean releaseSavepoint(){
+	public boolean releaseSavepoint() {
 		return false;
 	}
-	
-	//  «∑Ò÷ß≥÷‘⁄≈˙¥¶¿Ìπ˝≥Ã÷–Ω¯––¥ÌŒÛ¥¶¿Ì
+
+	/**
+	 * ÊòØÂê¶ÊîØÊåÅÂú®ÊâπÂ§ÑÁêÜËøáÁ®ã‰∏≠ËøõË°åÈîôËØØÂ§ÑÁêÜ(non-Javadoc)
+	 * 
+	 * @see org.pentaho.di.core.database.BaseDatabaseMeta#
+	 *      supportsErrorHandlingOnBatchUpdates()
+	 */
 	@Override
-	public boolean supportsErrorHandlingOnBatchUpdates(){
+	public boolean supportsErrorHandlingOnBatchUpdates() {
 		return true;
 	}
 
-	//  «∑Ò÷ß≥÷kettel±æµÿ≤÷ø‚
-	@Override
-	public boolean supportsRepository(){
-		return true;
-	}
-	
-	//
-//  @Override
-//  	public int getMaxVARCHARLength() {
-//	  return VARCHAR_LIMIT;
-//  	}
 }

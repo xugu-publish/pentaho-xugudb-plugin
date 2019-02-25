@@ -1,42 +1,163 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>pentaho</groupId>
-  <artifactId>pentaho-xugu-plugin</artifactId>
-  <version>8.2.0.0-342</version>
-  <name>Pentaho Data Integration SDK Database Plugin</name>
-  <properties>
-    <xugu-driver.version>V1002</xugu-driver.version>
-  </properties>
-  
-  <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <!-- 默认的版本为3.8.1，修改为4.x,因为3.x使用的为编程的方式，4.x为注解的形式。 -->
-            <version>4.12</version>
-        </dependency>
-        <dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>slf4j-api</artifactId>
-    		<version>1.7.22</version>
+	<!-- <parent> <groupId>org.pentaho</groupId> <artifactId>pentaho-ce-jar-parent-pom</artifactId> 
+		<version>8.2.0.0-342</version> </parent> -->
+
+	<groupId>pentaho</groupId>
+	<artifactId>pentaho-xugudb-plugin</artifactId>
+	<version>8.2.0.0-342</version>
+	<packaging>bundle</packaging>
+
+	<name>Pentaho Data Integration Xugu Database Plugin</name>
+	<description>Pentaho open source project for support Xugu Database</description>
+	<url>https://github.com/xugu-publish/pentaho-xugudb-plugin</url>
+
+	<licenses>
+		<license>
+			<name>Pentaho Proprietary License</name>
+			<url>http://www.pentaho.com</url>
+			<distribution>repo</distribution>
+		</license>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>xugu-publish</name>
+			<email>ouguan.xugu@163.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+		<url>scm:git:git@github.com:xugu-publish/pentaho-xugudb-plugin.git</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<swt.version>4.6</swt.version>
+		<junit.version>4.12</junit.version>
+		<xugu-driver.version>10.0</xugu-driver.version>
+		<xugu-stream.version>0.0.1</xugu-stream.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>maven-eclipse-repo</id>
+			<url>http://maven-eclipse.github.io/maven</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+		</dependency>
+		<!-- Kettle dependencies -->
+		<dependency>
+			<groupId>org.pentaho</groupId>
+			<artifactId>kettle-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>slf4j-log4j12</artifactId>
+			<groupId>org.pentaho</groupId>
+			<artifactId>kettle-dbdialog</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho</groupId>
+			<artifactId>kettle-engine</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho</groupId>
+			<artifactId>kettle-ui-swt</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho</groupId>
+			<artifactId>kettle-log4j-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pentaho</groupId>
+			<artifactId>metastore</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<!-- Xugu JDBC Driver -->
+		<dependency>
+			<groupId>com.xugu</groupId>
+			<artifactId>cloudjdbc</artifactId>
+			<version>${xugu-driver.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.xugu</groupId>
+			<artifactId>stream</artifactId>
+			<version>${xugu-stream.version}</version>
+		</dependency>
+
+		<!-- swt相关依赖 -->
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+			<version>${swt.version}</version>
+			<!-- To use the debug jar, add this -->
+			<classifier>debug</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
+			<version>${swt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
+			<version>${swt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+			<version>${swt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
+			<version>${swt.version}</version>
+		</dependency>
+		<!-- Other dependencies -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
 			<version>1.7.22</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>slf4j-simple</artifactId>
-    		<version>1.7.22</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.22</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-vfs2</artifactId>
-    		<version>2.1</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.22</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-vfs2</artifactId>
+			<version>2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -44,9 +165,9 @@
 			<version>2.6</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-lang3</artifactId>
-    		<version>3.0</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -54,92 +175,75 @@
 			<version>1.3.2</version>
 		</dependency>
 		<dependency>
-    		<groupId>com.google.guava</groupId>
-    		<artifactId>guava</artifactId>
-    		<version>19.0</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>19.0</version>
 		</dependency>
-		<!-- Xugu dependency -->
-		<dependency>
-      		<groupId>com.xugu</groupId>
-      		<artifactId>cloudjdbc</artifactId>
-      		<version>10.0</version>
-    	</dependency>
-        <!-- Kettle dependencies -->
-		<dependency>
-			<groupId>org.pentaho</groupId>
-			<artifactId>kettle-core</artifactId>
-			<version>8.2.0.0-342</version>
-		</dependency>
-		<dependency>
-			<groupId>org.pentaho</groupId>
-			<artifactId>kettle-dbdialog</artifactId>
-			<version>8.2.0.0-342</version>
-		</dependency>
-		<dependency>
-			<groupId>org.pentaho</groupId>
-			<artifactId>kettle-engine</artifactId>
-			<version>8.2.0.0-342</version>
-		</dependency>
-		<dependency>
-			<groupId>org.pentaho</groupId>
-			<artifactId>kettle-ui-swt</artifactId>
-			<version>8.2.0.0-342</version>
-		</dependency>
-		<dependency>
-			<groupId>org.pentaho</groupId>
-			<artifactId>kettle-log4j-core</artifactId>
-			<version>8.2.0.0-342</version>
-		</dependency>
-  </dependencies>
-    
-  <build>
-    <finalName>${project.artifactId}</finalName>
-    
-    <plugins>
-    <!-- 
-    <plugin>				
-    	<groupId>org.apache.maven.plugins</groupId>			
-    	<artifactId>maven-shade-plugin</artifactId>				
-    	<version>2.3</version>				
-    	<executions>					
-    		<execution>						
-    			<phase>package</phase>		
-   				<goals>							
-   					<goal>shade</goal>						
-   				</goals>						
-   				<configuration>							
-   					<transformers>								
-   						<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>util.Microseer</mainClass>								
-						</transformer>							
-					</transformers>						
-				</configuration>				
-			</execution>				
-		</executions>			
-	</plugin>
-		<plugin>
-      		<artifactId>maven-assembly-plugin</artifactId>
-      		<version>2.4</version>  
-    		<executions>  
-        		<execution>  
-            		<phase>package</phase>  
-            		<goals>  
-                		<goal>single</goal>  
-            		</goals>  
-        		</execution>  
-    		</executions>  
-      		<configuration>
-        		<dependencySets>  
-    				<dependencySet>  
-       				<outputDirectory>/</outputDirectory>  
-    				</dependencySet>  
-				</dependencySets>
-        		<descriptorRefs>
-          			<descriptorRef>jar-with-dependencies</descriptorRef>
-        		</descriptorRefs>
-      		</configuration>
-    	</plugin>
-    	-->
-    </plugins>
-  </build>
+
+	</dependencies>
+
+	<build>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.8</source> <!-- 源代码使用的JDK版本 -->
+					<target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
+					<encoding>UTF-8</encoding><!-- 字符集编码 -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<skip>true</skip><!-- 跳过测试 -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Import-Package>javax.crypto.spec*;resolution:=optional,org.eclipse.swt*;resolution:=optional,org.pentaho.di.ui.xul*;resolution:=optional,org.pentaho.ui.xul*;resolution:=optional,*</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>com.xugu</groupId>
+							<artifactId>cloudjdbc</artifactId>
+							<version>${xugu-driver.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>com.xugu</groupId>
+							<artifactId>stream</artifactId>
+							<version>${xugu-stream.version}</version>
+						</artifactItem>
+					</artifactItems>
+					<outputDirectory>${project.build.directory}/lib</outputDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

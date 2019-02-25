@@ -4,21 +4,33 @@ import org.pentaho.di.core.exception.KettleException;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author xugu-publish
+ * @since 1.8
+ *
+ */
 public class XuguDatabaseMetaTest {
-	//²âÊÔ»ñÈ¡Çı¶¯
+
+	/**
+	 * æµ‹è¯•è·å–è™šè°·JDBCé©±åŠ¨ç±»
+	 */
 	@Test
-	public void testDriverClass(){
+	public void testDriverClass() {
 		XuguDatabaseMeta dbMeta = new XuguDatabaseMeta();
-		assertEquals( "com.xugu.cloudjdbc.Driver", dbMeta.getDriverClass() );
+		assertEquals("com.xugu.cloudjdbc.Driver", dbMeta.getDriverClass());
 	}
-	
-	//²âÊÔ×é×°Url
+
+	/**
+	 * æµ‹è¯•è·å–è™šè°·JDBC URLä¿¡æ¯
+	 * 
+	 * @throws KettleException
+	 */
 	@Test
-	public void testGetUrl() throws KettleException{
-		final String prefix = "jdbc:xugu://192.168.2.77:5138/testdb?char_set=GBK&auto_commit=false";
+	public void testGetUrl() throws KettleException {
+		final String prefix = "jdbc:xugu://192.168.2.76:5151/SYSTEM";
 		XuguDatabaseMeta dbMeta = new XuguDatabaseMeta();
 		// Test building url
-		System.out.println("realURL get "+dbMeta.getURL("192.168.2.77", "5138", "testdb"));
-		assertEquals( prefix, dbMeta.getURL( "192.168.2.77", "5138", "testdb"));
+		System.out.println("realURL get " + dbMeta.getURL("192.168.2.76", "5151", "SYSTEM"));
+		assertEquals(prefix, dbMeta.getURL("192.168.2.76", "5151", "SYSTEM"));
 	}
 }
